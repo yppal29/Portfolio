@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ezen.mappers.BoardMapper">
+
+
+	<!-- 검색 조건문 -->
+	<sql id="searchtype">
+		<trim prefix="where (" suffix=")" prefixOverrides="OR">
+			<foreach collection="typeArr" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like concat('%',#{keyword},'%')
+						</when>
+						<when test="type == 'C'.toString()">
+							content like concat('%',#{keyword},'%')
+						</when>
+						<when test="type == 'W'.toString()">
+							writer like concat('%',#{keyword},'%' )
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+
+	</sql>
+
+	<select id="listCount" resultType="Integer">
+		SELECT COUNT(*)
+		FROM BOARD as b
+		INNER JOIN category AS
+		c
+		ON
+		b.category=
+		c.category
+		<if test="keyword != null">
+			<include refid="searchtype"></include>
+		</if>
+		and boardTitle = #{boardTitle}
+	</select>
+
+	<select id="listAll" resultType="com.ezen.dto.BoardVO">
+		SELECT bseq, title, content,
+		regdate, count, writer, b.category,
+		c.catType, boardTitle, m.member_id,
+		m.nick_name
+		FROM board as b
+		INNER
+		JOIN member AS
+		m
+		ON b.writer = m.member_id
+		INNER JOIN category AS
+		c
+		ON
+		b.category= c.category
+		<if test="keyword != null">
+			<include refid="searchtype"></include>
+		</if>
+		AND b.boardTitle = #{boardTitle}
+		ORDER BY
+		regdate DESC
+		limit
+		#{pageStart}, #{perPageNum}
+	</select>
+
+	<select id="mainList" resultType="com.ezen.dto.BoardVO">
+		SELECT bseq, title, content,
+		regdate, count, writer, b.category, c.catType, boardTitle,
+		m.member_id,
+		m.nick_name
+		FROM board as b
+		INNER JOIN member AS
+		m
+		ON b.writer
+		= m.member_id
+		INNER JOIN category AS
+		c
+		ON b.category= c.category
+		WHERE
+		b.boardTitle = #{boardTitle}
+		ORDER BY
+		regdate DESC
+		LIMIT 5
+	</select>
+
+	<select id="boardDetail" parameterType="int"
+		resultType="com.ezen.dto.BoardVO">
+		SELECT bseq, title, content, regdate, count, writer,
+		category, boardTitle,
+		M.member_id, M.nick_name
+		FROM BOARD B
+		INNER JOIN
+		MEMBER AS M
+		ON B.WRITER = M.MEMBER_ID
+		WHERE BSEQ = #{bseq}
+	</select>
+
+	<insert id="boardInsert" parameterType="com.ezen.dto.BoardVO"
+		useGeneratedKeys="true" keyProperty="bseq">
+		INSERT INTO BOARD (BSEQ,
+		TITLE,
+		CONTENT, WRITER, REGDATE, CATEGORY, BOARDTITLE)
+		VALUES(#{bseq},
+		#{title},
+		#{content},
+		#{writer}, now(), #{category}, #{boardTitle})
+	</insert>
+
+	<insert id="fileInsert" parameterType="com.ezen.dto.FileVO">
+		INSERT INTO
+		FILES (FNO,
+		BSEQ, FILENAME, FILEORINAME, FILEURL)
+		VALUES (#{fno}, #{bseq},
+		#{fileName}, #{fileOriName}, #{fileUrl})
+	</insert>
+
+	<select id="fileDetail" parameterType="int"
+		resultType="com.ezen.dto.FileVO">
+		SELECT *
+		FROM FILES
+		WHERE BSEQ = #{bseq}
+	</select>
+
+	<update id="boardUpdate" parameterType="com.ezen.dto.BoardVO">
+		UPDATE BOARD
+		SET
+		TITLE =
+		#{title},
+		CONTENT = #{content}
+		WHERE BSEQ = #{bseq}
+	</update>
+
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM BOARD
+		WHERE
+		BSEQ = #{bseq}
+	</delete>
+
+	<update id="increaseViewcnt">
+		UPDATE BOARD SET count = count + 1
+		WHERE bseq =
+		#{bseq}
+	</update>
+</mapper>

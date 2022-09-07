@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ezen.mappers.CommentMapper">
+
+	<select id="commentCount" resultType="int">
+		SELECT COUNT(*)
+		FROM COMMENT
+	</select>
+
+	<select id="commentList" parameterType="int" resultType="com.ezen.dto.CommentVO">
+		SELECT b.bseq, c.cno, c.content, c.writer, c.reg_date, m.member_id, m.nick_name
+		FROM COMMENT c
+		INNER JOIN BOARD as b
+		on c.bseq = b.bseq
+		INNER JOIN MEMBER AS m
+        ON c.writer = m.nick_name
+		WHERE b.BSEQ = #{bseq}
+		order by reg_date asc
+	</select>
+
+	<insert id="commentInsert" parameterType="com.ezen.dto.CommentVO">
+		INSERT INTO
+		COMMENT (CNO, BSEQ, CONTENT, WRITER, REG_DATE)
+		VALUES(#{cno}, #{bseq}, #{content}, #{writer}, now())
+	</insert>
+
+	<update id="commentUpdate" parameterType="com.ezen.dto.CommentVO">
+		UPDATE COMMENT
+		SET
+		CONTENT = #{content}
+		WHERE CNO = #{cno}
+	</update>
+
+	<delete id="commentDelete" parameterType="int">
+		DELETE FROM COMMENT WHERE CNO = #{cno}
+	</delete>
+
+</mapper>
