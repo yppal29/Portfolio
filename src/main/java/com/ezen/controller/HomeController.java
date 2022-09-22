@@ -774,7 +774,7 @@ public class HomeController {
 
 		session.invalidate();
 
-		return "redirect:/main";
+		return "redirect:/index";
 	}
 	
 	/// 회원가입 구현
@@ -796,7 +796,7 @@ public class HomeController {
 			logger.info("****존재 하는 아이디");
 		}
 		
-		return "redirect:/main";
+		return "redirect:/index";
 	}
 	
 	/// 아이디 중복 체크 구현

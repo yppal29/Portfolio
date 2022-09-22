@@ -9,7 +9,7 @@ public class Criteria {
 	private int perPageNum; // 페이지당 보여줄 게시글의 개수
 	private String keyword; // 검색 키워드
 	private String type;	// 검색 타입
-	private String[] typeArr;
+	private String[] typeArr; // 검색 타입 배열
 	private int boardTitle;
 	
 	public int getPageStart() {
